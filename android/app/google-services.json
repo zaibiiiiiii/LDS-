@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1017817946014",
+    "project_id": "lds-1d3ec",
+    "storage_bucket": "lds-1d3ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1017817946014:android:b2009bc79975fb5a5ba88f",
+        "android_client_info": {
+          "package_name": "com.example.lds"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6nZK0F2aEwSjnh_vQ1fEZl0dcRjQWjQg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
