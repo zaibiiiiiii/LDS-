@@ -1,109 +1,96 @@
-class InvoiceDashboard {
-  ZatchaDashboard? zatchaDashboard;
-
-  InvoiceDashboard({this.zatchaDashboard});
-
-   factory InvoiceDashboard.fromJson(Map<String, dynamic> json) {
-    return InvoiceDashboard(
-      zatchaDashboard: json['ZatchaDashboard'] != null
-          ? ZatchaDashboard.fromJson(json['ZatchaDashboard'])
-          : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (zatchaDashboard != null) {
-      data['ZatchaDashboard'] = zatchaDashboard!.toJson();
-    }
-    return data;
-  }
-}
-
-class ZatchaDashboard {
-  Status? status;
-  Type? type;
-
-  ZatchaDashboard({this.status, this.type});
-
-  factory ZatchaDashboard.fromJson(Map<String, dynamic> json) {
-    return ZatchaDashboard(
-      status: json['status'] != null ? Status.fromJson(json['status']) : null,
-      type: json['type'] != null ? Type.fromJson(json['type']) : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (status != null) {
-      data['status'] = status!.toJson();
-    }
-    if (type != null) {
-      data['type'] = type!.toJson();
-    }
-    return data;
-  }
-}
-
-class Status {
-  int? clear;
-  int? error;
-  int? warning;
-  int? pending;
-
-  Status({this.clear, this.error, this.warning, this.pending});
-
-  factory Status.fromJson(Map<String, dynamic> json) {
-    return Status(
-      clear: json['clear'],
-      error: json['error'],
-      warning: json['warning'],
-      pending: json['pending'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['clear'] = clear;
-    data['error'] = error;
-    data['warning'] = warning;
-    data['pending'] = pending;
-    return data;
-  }
-}
-
-class Type {
-  int? invoice;
-  int? creditNote;
-  int? debitNote;
-  int? prepaid;
-  int? draft;
-
-  Type({
-    this.invoice,
-    this.creditNote,
-    this.debitNote,
-    this.prepaid,
-    this.draft,
-  });
-
-  factory Type.fromJson(Map<String, dynamic> json) {
-    return Type(
-      invoice: json['Invoice'],
-      creditNote: json['CreditNote'],
-      debitNote: json['DebitNote'],
-      prepaid: json['prepaid'],
-      draft: json['draft'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['Invoice'] = invoice;
-    data['CreditNote'] = creditNote;
-    data['DebitNote'] = debitNote;
-    data['prepaid'] = prepaid;
-    data['draft'] = draft;
-    return data;
-  }
-}
+// class DashboardData {
+//   final int error;
+//   final int warning;
+//   final int pending;
+//   final int cancel;
+//   final int invoice;
+//   final int creditNote;
+//   final int debitNote;
+//   final int draft;
+//   final int prepaid;
+//
+//   DashboardData({
+//     required this.error,
+//     required this.warning,
+//     required this.pending,
+//     required this.cancel,
+//     required this.invoice,
+//     required this.creditNote,
+//     required this.debitNote,
+//     required this.draft,
+//     required this.prepaid,
+//   });
+//
+//   // Factory constructor to create a DashboardData instance from JSON
+//   factory DashboardData.fromJson(Map<String, dynamic> json) {
+//     return DashboardData(
+//       error: json['Error'] as int,
+//       warning: json['Warning'] as int,
+//       // Convert string values to integers using tryParse, defaulting to 0 if conversion fails
+//       pending: int.tryParse(json['Pending'] as String) ?? 0,
+//       cancel: int.tryParse(json['Cancel'] as String) ?? 0,
+//       invoice: int.tryParse(json['Invoice'] as String) ?? 0,
+//       creditNote: int.tryParse(json['Credit_note'] as String) ?? 0,
+//       debitNote: int.tryParse(json['Debit_note'] as String) ?? 0,
+//       draft: int.tryParse(json['Draft'] as String) ?? 0,
+//       prepaid: int.tryParse(json['Prepaid'] as String) ?? 0,
+//     );
+//   }
+//
+//
+//   // Method to convert DashboardData instance to JSON
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'Error': error,
+//       'Warning': warning,
+//       'Pending': pending.toString(),
+//       'Cancel': cancel.toString(),
+//       'Invoice': invoice.toString(),
+//       'Credit_note': creditNote.toString(),
+//       'Debit_note': debitNote.toString(),
+//       'Draft': draft.toString(),
+//       'Prepaid': prepaid.toString(),
+//     };
+//   }
+// }
+//
+// class DashboardResponse {
+//   final List<DashboardData> result;
+//   final String status;
+//   final String? errorCode;
+//   final String message;
+//
+//   DashboardResponse({
+//     required this.result,
+//     required this.status,
+//     required this.errorCode,
+//     required this.message,
+//   });
+//
+//   factory DashboardResponse.fromJson(Map<String, dynamic> json) {
+//     final message = json['Message'] as String? ?? '';
+//     final resultList = json['result'] ?? [];
+//
+//     return DashboardResponse(
+//       result: resultList is List
+//           ? resultList
+//           .map((item) =>
+//           DashboardData.fromJson(item as Map<String, dynamic>))
+//           .toList()
+//           : [],
+//       status: json['status'] as String? ?? '',
+//       errorCode: json['error_code'] as String?,
+//       message: message,
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'result': result.map((item) => item.toJson()).toList(),
+//       'status': status,
+//       'error_code': errorCode,
+//       'message': message,
+//     };
+//   }
+// }
+//

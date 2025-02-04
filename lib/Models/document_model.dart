@@ -1,4 +1,5 @@
 class Document {
+
   Document({
     required this.companyId,
     this.companyBranch,

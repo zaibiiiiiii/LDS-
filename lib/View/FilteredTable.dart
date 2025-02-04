@@ -1,148 +1,193 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
-import 'package:lds/API_Configuration/api.dart';
-import 'package:lds/Models/Documentlistbystatus.dart';
+import '../Controller/Documentlistbystatus.dart';
+import '../Models/Documentlistbystatus.dart';
+import '../l10n/app_localizations.dart';
 
 class FilteredTableScreen extends StatefulWidget {
-  final String filterType; // "status" or "type"
-  final String filterValue; // The value of the filter (e.g., 'Pending', 'Invoice')
+  final String companyId;
+  final DateTime periodFrom;
+  final DateTime periodTo;
+  final String docType;
+  final String status;
 
-  const FilteredTableScreen({super.key, required this.filterType, required this.filterValue});
+  const FilteredTableScreen({
+    super.key,
+    required this.companyId,
+    required this.periodFrom,
+    required this.periodTo,
+    required this.docType,
+    required this.status,
+  });
 
   @override
-  _FilteredTableScreenState createState() => _FilteredTableScreenState();
+  State<FilteredTableScreen> createState() => _FilteredTableScreenState();
 }
 
 class _FilteredTableScreenState extends State<FilteredTableScreen> {
   late Future<List<Document>> documents;
+  final DashboardDetailsService _service = DashboardDetailsService();
+  String appBarTitle = "Documents";
 
   @override
   void initState() {
     super.initState();
-    documents = _fetchDocuments(); // Fetch all documents and filter them locally
+    _updateAppBarTitle();
+
+    documents = _fetchDocuments();
   }
-
-  Future<List<Document>> _fetchDocuments() async {
-    try {
-      // API endpoint without any filters in the URL
-      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}DocumentsListByStatus'));  // Fetch all documents
-      print("Response: ${response.body}");
-
-      if (response.statusCode == 200) {
-        // Decode the response
-        Map<String, dynamic> jsonResponse = json.decode(response.body);
-        DocumentList documentList = DocumentList.fromJson(jsonResponse);
-
-        // Filter documents based on the selected filter type and value
-        List<Document> filteredDocuments = documentList.documents.where((doc) {
-          // Filter by status or document type
-          if (widget.filterType == 'status') {
-            return doc.status == widget.filterValue;
-          } else if (widget.filterType == 'type') {
-            return doc.documentType == widget.filterValue;
-          } else {
-            return false;
-          }
-        }).toList();
-
-        return filteredDocuments;
-      } else {
-        print("Error: ${response.statusCode}");
-        return []; // Return an empty list on error
-      }
-    } catch (e) {
-      print("Error during fetch: $e");
-      return []; // Return an empty list on exception
+  void _updateAppBarTitle() {
+    String title = "Documents";
+    if (widget.docType != '00') {
+      title += " - ${widget.docType}";
     }
+    if (widget.status != '00') {
+      title += " - ${widget.status}";
+    }
+    setState(() {
+      appBarTitle = title;
+    });
   }
 
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'clear':
-        return Colors.green;  // Green color for approved status
+        return  Colors.green;
       case 'pending':
-        return Colors.blue;  // Blue color for pending status
+        return const Color(0xFF0F6ECB);
       case 'error':
-        return Colors.red;  // Red color for error status
+        return const Color(0XFFCA1E1A);
       case 'warning':
-        return Colors.orange;  // Orange color for warning status
+        return const Color(0xFFFF6700);
       default:
-        return Colors.grey;  // Default gray color for unknown status
+        return Colors.grey;
     }
   }
   Color getTypeColor(String type) {
     switch (type.toLowerCase()) {
       case 'invoice':
-        return Colors.purple;  // Purple color for Invoice
+        return const  Color(0xFF9B37AC);
       case 'creditnote':
-        return Colors.yellow;  // Yellow color for Credit Note
+        return const Color(0xFF643DA8);
       case 'prepaid':
-        return Colors.blue;  // Blue color for Prepaid
+        return const Color(0XFF298CDC);
       case 'debitnote':
-        return Colors.orange;  // Orange color for Debit Note
+        return const Color(0XFF4251A6);
       case 'draft':
-        return Colors.grey;  // Grey color for Draft
+        return const Color(0XFF12AABE);
       default:
-        return Colors.black;  // Default black color for unknown types
+        return Colors.black;
     }
   }
+
+  // Fetch documents from the API and return a list of documents
+  Future<List<Document>> _fetchDocuments() async {
+    try {
+      final response = await _service.fetchDocumentDetails(
+        periodFrom: widget.periodFrom,
+        periodTo: widget.periodTo,
+        docType: widget.docType,
+        status: widget.status,
+      );
+
+      if (response.status == 'OK') {
+        if (response.result.isNotEmpty) {
+          // Flatten the nested lists and directly add Documents to the list
+          List<Document> documents = response.result
+              .expand((list) => list)  // Flatten the nested list of lists
+              .toList();               // Convert the flattened list to a List<Document>
+          return documents;
+        } else {
+          return [];
+        }
+      } else {
+        throw Exception('No Documents Found: ${response.message}');
+      }
+    } catch (e) {
+      print('Error fetching document details: $e');
+      throw Exception('No Documents Available');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar:  AppBar(
         backgroundColor: Colors.blue[900],
         foregroundColor: Colors.white,
-        title: Text('Documents - ${widget.filterValue}'), // Display filter value in app bar
+        title: Text(appBarTitle), // Use dynamic title
       ),
       body: FutureBuilder<List<Document>>(
         future: documents,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show loading indicator while the data is loading
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            // Show error message if the request fails
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            // Show message if no documents are found
             return const Center(child: Text('No documents found.'));
           } else {
             List<Document> filteredDocuments = snapshot.data!;
+
+            // Display the data in a DataTable
             return SingleChildScrollView(
-              scrollDirection: Axis.horizontal, // Allow horizontal scrolling
+              scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: const [
+                columns:  [
                   DataColumn(label: Text('Doc#')),
-                  DataColumn(label: Text('Customer Name')),
-                  DataColumn(label: Text('Branch')),
-                  DataColumn(label: Text('Total Amount')),
-                  DataColumn(label: Text('Issue Date')),
-                  DataColumn(label: Text('Tax Inclusive Amount')),
-                  DataColumn(label: Text('Document Type')),
-                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text(
+                      AppLocalizations.of(context, 'Customer Name'),
+                  )),
+                  DataColumn(label: Text(
+                    AppLocalizations.of(context, 'Branch'),
+                  )),
+                  DataColumn(label: Text(
+                    AppLocalizations.of(context, 'Total Amount'),
+                  )),
+                  DataColumn(label: Text(
+                    AppLocalizations.of(context, 'Issue Date'),
+                  )),
+                  DataColumn(label: Text(
+                      AppLocalizations.of(context, 'Tax Inclusive Amount'),
+
+                  )),
+                  DataColumn(label: Text(
+                      AppLocalizations.of(context,  'Document Type'),
+
+                  )),
+                  DataColumn(label: Text(
+                    AppLocalizations.of(context,  'Status'),
+                  )),
+                  DataColumn(label: Text(
+                    AppLocalizations.of(context,  'Status Message'),
+                  )), // New column for Status Message
                 ],
                 rows: filteredDocuments.map((doc) {
-                  Color statusColor = getStatusColor(doc.status); // Function to get color based on status
+                  Color statusColor = getStatusColor(doc.status);
                   Color typeColor = getTypeColor(doc.documentType);
-
                   return DataRow(cells: [
-                    DataCell(Text(doc.documentno.toString())),
-                    DataCell(Text(doc.customerName)),
-                    DataCell(Text(doc.documentBranch)),
-                    DataCell(Text(doc.totalAmount.toString())),
+                    DataCell(Text(doc.documentNo)),
+                    DataCell(Text(doc.customerName ?? 'NA')), // Fallback if customerName is null
+                    DataCell(Text(doc.branch)),
+                    DataCell(Text(doc.totalAmount.toStringAsFixed(2))),
                     DataCell(Text(doc.issueDate)),
-                    DataCell(Text(doc.taxInclusiveAmount.toString())),
+                    DataCell(Text(doc.taxInclusiveAmount.toStringAsFixed(2))),
                     DataCell(
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: typeColor, // Set background color based on status
+                          color: typeColor, // Use typeColor
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           doc.documentType,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.white, // Text color
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -151,18 +196,18 @@ class _FilteredTableScreenState extends State<FilteredTableScreen> {
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: statusColor, // Set background color based on status
+                          color: statusColor, // Use statusColor
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           doc.status,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.white, // Text color
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ),
+                    ),                    DataCell(Text(doc.statusMessage != null ? doc.statusMessage! : 'No Status Message')),
                   ]);
                 }).toList(),
               ),

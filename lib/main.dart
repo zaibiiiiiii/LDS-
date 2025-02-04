@@ -1,45 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:lds/View/Login.dart';
-import 'package:lds/View/PushNotification.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart'; // Import the localization file
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase Initialization
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  NotificationService notificationService = NotificationService();
-  await notificationService.initialize();
-
-  await FlutterDownloader.initialize(debug: true);
-
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+
+  // Method to set locale dynamically
+  static void setLocale(BuildContext context, Locale locale) {
+    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(locale);
+  }
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = const Locale('en');
+
+  @override
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      supportedLocales: const [
+        Locale('en', ''), // English
+        Locale('ar', ''), // Arabic
+      ],
+      locale: _locale, // Apply the selected locale
+      localizationsDelegates: [
+        const AppLocalizationsDelegate(), // Add your custom localization delegate
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       title: 'LDS Mobile App',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         // Primary and Accent Colors
         primaryColor: Colors.blue[900],
         hintColor: Colors.orange,
 
         // Bright Backgrounds and Card Colors
-          scaffoldBackgroundColor: const Color(0xFFFEFCFF),
+        scaffoldBackgroundColor: const Color(0xFFFFFFFF),
 
         // Text Theme with Modern Font
         textTheme: TextTheme(
           displayLarge: const TextStyle(
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Colors.black,
             fontFamily: 'Roboto',
           ),
           displayMedium: const TextStyle(
@@ -72,7 +100,6 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Colors.blue[900]!, width: 2),
           ),
-
           contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         ),
 
@@ -95,35 +122,12 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
           backgroundColor: Colors.blue[900],
           centerTitle: true,
-          titleTextStyle:  const TextStyle(
+          titleTextStyle: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             fontFamily: 'Roboto',
           ),
-        ),
-
-        // Card and Other Widgets' Shadows
-        cardTheme: CardTheme(
-          color: Colors.white,
-          shadowColor: Colors.black.withOpacity(0.1),
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-
-        // General Button Styles for Icons and Other Buttons
-        iconButtonTheme: IconButtonThemeData(
-          style: ButtonStyle(
-            foregroundColor: WidgetStateProperty.all(Colors.blue[900]),
-          ),
-        ),
-
-        // Bottom Navigation Bar Styling (Optional)
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.blue[900],
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey[400],
-          elevation: 10,
         ),
       ),
       home: const LoginScreen(),

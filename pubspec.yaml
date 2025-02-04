@@ -58,11 +58,15 @@ dependencies:
   firebase_auth: ^5.3.3
   file_picker: ^8.1.4
   cached_network_image: ^3.2.3
+  google_maps_flutter: ^2.10.0
+printing: ^5.14.0
+firebase_messaging: any
+cloud_firestore: ^5.6.2
+pdf: ^3.11.2
+deepseek_client: ^0.0.1
+flutter_pdfview: ^1.4.0
+base64: ^3.0.0
 
-  flutter_map: any
-  latlong2: any
-  geolocator: any
-  firebase_messaging: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,10 +85,21 @@ dev_dependencies:
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
   geolocator: ^13.0.2
+  qr_flutter: ^4.1.0
+  web_socket_channel: ^3.0.1
+  mobile_scanner: ^6.0.3
+  image_picker: ^1.1.2
+  flutter_localization: ^0.3.1
+  screenshot: ^3.0.0
+  intl_utils: ^2.8.9
+  provider: ^6.1.2
+  cloud_firestore: ^5.6.2
+
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/logo.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -96,10 +111,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  generate: true
   assets:
     - assets/icon.png
     - assets/logo.png
-  #   - images/a_dot_ham.jpeg
+  # Tell Flutter to generate the localization files  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

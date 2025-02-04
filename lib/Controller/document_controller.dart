@@ -6,8 +6,8 @@ import '../Models/document_model.dart';  // Import the Document model
 const String apiUrl = 'https://cosco.phase2.uat.edsgcc.com/api/app_documentAttachment/1/EDS-App-003';
 
 const Map<String, String> headers = {
-  'Authorization': 'apikeysyncdemo ECBFFE2D-8E76-4335-97FA-8502381B6EBF', // Replace with your actual token
-  'COMPANY_SECRATE_KEY': '0273239B-C005-4DE3-8138-A4B8A4068A5B',         // Replace with your secret key
+  'Authorization': 'apikeysyncdemo ECBFFE2D-8E76-4335-97FA-8502381B6EBF',
+  'COMPANY_SECRATE_KEY': '0273239B-C005-4DE3-8138-A4B8A4068A5B',
 };
 
 Future<Document> fetchDocument() async {
